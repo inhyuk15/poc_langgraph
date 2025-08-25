@@ -1,4 +1,5 @@
 import asyncio
+from asyncio import subprocess
 from contextlib import AsyncExitStack, contextmanager, asynccontextmanager
 import os
 from mcp import ClientSession, StdioServerParameters
@@ -21,12 +22,13 @@ class MCPFileHandler:
     async def aopen(self, path: str='.'):
         self.path = os.path.abspath(path)
         params = list(server_params['args'])
-        params[-1] = self.path
+        params[-1] = f'{self.path}'
 
         params = StdioServerParameters(
             command=server_params["command"],
             args=params,
-            env=None
+            env=None,
+            stderr=subprocess.DEVNULL, 
         )
 
         async with AsyncExitStack() as stack:
@@ -40,8 +42,11 @@ async def main():
     fs = MCPFileHandler()
     async with fs.aopen('.') as session:
         tools = await session.list_tools()
-        print("tools:")
-        print(list(tool.name for tool in tools.tools))
+        debug_print("tools:", verbose=True)
+        debug_print(list(tool.name for tool in tools.tools), verbose=True)
+def debug_print(*args, verbose=False, **kwargs):
+    if verbose:
+        print(*args, **kwargs)
 
 if __name__ == "__main__":
     asyncio.run(main())
