@@ -35,12 +35,12 @@ class MCPFileHandler:
             await session.initialize()
             yield session
 
+#------------ test
 async def main():
     fs = MCPFileHandler()
     async with fs.aopen('.') as session:
         tools = await session.list_tools()
         print("tools:")
-        
         print(list(tool.name for tool in tools.tools))
 
 if __name__ == "__main__":
